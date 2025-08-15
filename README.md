@@ -13,3 +13,22 @@ It is designed to be executed in a **Jenkins pipeline** and uses **Redis** to st
 - **Redis Integration** – Stores rollout status (`True`, `False`, or `"Skip"`) in Redis with a TTL, keyed by Jenkins build number and service name.
 - **Retry Mechanism** – Retries API calls with delays when responses are incomplete or errors occur.
 - **Skip Logic** – Skips checks when no application changes are detected.
+
+## Required Environment Variables
+
+- `NAMESPACE` – Kubernetes namespace  
+- `K8S_KUBECONFIG` – Path to kubeconfig file  
+- `BUILD_NUMBER` – Jenkins build number  
+- `COMMIT_HASH_GITOPS` – GitOps commit hash  
+- `ARGOCD_KEY` – ArgoCD API key  
+- `ARGOCD_APP_PROJECT_NAME` – ArgoCD application name  
+- `ARGOCD_SERVER` – ArgoCD server address  
+
+## How It Works
+
+1. Reads configuration and Jenkins build metadata.  
+2. Gets the ArgoCD application status.  
+3. Retrieves stable and new ReplicaSet IDs.  
+4. Monitors application state until it matches rollout success/failure/skip conditions.  
+5. Checks container restart counts in the new ReplicaSet.  
+6. Stores the rollout result in Redis for use in later pipeline stages.  
